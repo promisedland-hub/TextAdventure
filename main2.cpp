@@ -5,24 +5,23 @@
 
 using namespace std;
 
-class Gegner {
+class Enemy {
 public:
     string name;
-    int gesundheit;
+    int hitpoints;
 
 
-    Gegner(string name, int gesundheit) : name(name), gesundheit(gesundheit) {}
+    Enemy(string name, int gesundheit) : name(name), hitpoints(gesundheit) {}
 
-    void anzeigen() {
-        cout << "Gegner: " << name << ", Gesundheit: " << gesundheit << endl;
+    void showStats() {
+        cout << "Gegner: " << name << ", Gesundheit: " << hitpoints << endl;
     }
 
-    void angreifen() {
+    void attack() {
         // Implementiere die Logik für den Angriff des Gegners
     }
 };
-
-class Spieler{
+class Player{
     public: 
         string name;
         int gesundheit;
@@ -30,7 +29,7 @@ class Spieler{
         string waffe;
         string waffentyp;
         
-        Spieler(string Name, string Klasse) : name(Name), klasse(Klasse) {
+        Player(string Name, string Klasse) : name(Name), klasse(Klasse) {
 
             if (klasse == "Jäger"){
                 gesundheit = 100;
@@ -39,19 +38,19 @@ class Spieler{
             } else if (klasse == "Krieger"){
                 gesundheit = 150;
                 waffe = "Schwert";
-                waffentyp = "Nahmkampf";
+                waffentyp = "Nahkampf";
             } else if (klasse == "Schurke"){
                 gesundheit = 80;
                 waffe = "Dolche";
-                waffentyp = "Nahmkampf";
+                waffentyp = "Nahkampf";
             }
         }
 
 
-        void anzeigen(){
+        void showStats(){
             cout << "Spieler: " << name << ", Gesundheit: " << gesundheit << endl;
         }
-        void angreifen() {
+        void attack() {
         // Implementiere die Logik für den Angriff des Spielers
     }
 };
