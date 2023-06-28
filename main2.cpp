@@ -11,7 +11,7 @@ public:
     int hitpoints;
 
 
-    Enemy(string name, int gesundheit) : name(name), hitpoints(gesundheit) {}
+    Enemy(string name, int hitpoints) : name(name), hitpoints(hitpoints) {}
 
     void showStats() {
         cout << "Gegner: " << name << ", Gesundheit: " << hitpoints << endl;
@@ -24,31 +24,31 @@ public:
 class Player{
     public: 
         string name;
-        int gesundheit;
-        string klasse;
-        string waffe;
-        string waffentyp;
+        int hitpoints;
+        string playerClass;
+        string weapon;
+        string weaponType;
         
-        Player(string Name, string Klasse) : name(Name), klasse(Klasse) {
+        Player(string name, string playerClass) : name(name), playerClass(playerClass) {
 
-            if (klasse == "Jäger"){
-                gesundheit = 100;
-                waffe = "Bogen";
-                waffentyp = "Fernkampf";
-            } else if (klasse == "Krieger"){
-                gesundheit = 150;
-                waffe = "Schwert";
-                waffentyp = "Nahkampf";
-            } else if (klasse == "Schurke"){
-                gesundheit = 80;
-                waffe = "Dolche";
-                waffentyp = "Nahkampf";
+            if (playerClass == "Jäger"){
+                hitpoints = 100;
+                weapon = "Bogen";
+                weaponType = "Fernkampf";
+            } else if (playerClass == "Krieger"){
+                hitpoints = 150;
+                weapon = "Schwert";
+                weaponType = "Nahkampf";
+            } else if (playerClass == "Schurke"){
+                hitpoints = 80;
+                weapon = "Dolche";
+                weaponType = "Nahkampf";
             }
         }
 
 
         void showStats(){
-            cout << "Spieler: " << name << ", Gesundheit: " << gesundheit << endl;
+            cout << "Spieler: " << name << ", Gesundheit: " << hitpoints << endl;
         }
         void attack() {
         // Implementiere die Logik für den Angriff des Spielers
