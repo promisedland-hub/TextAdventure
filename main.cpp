@@ -82,7 +82,7 @@ class Room{
         bool hostile;
         
 
-}
+};
 // Funktion, um den Spielzustand zu aktualisieren und auf Eingaben zu reagieren
 void updateGameState(string input) {
       // Aufteilen der Eingabe in Wörter
