@@ -2,9 +2,12 @@
 #include <string>
 #include <sstream>
 #include <vector>
+#include <algorithm>
+#include <cctype>
 
 using namespace std;
 
+//Gegnerklasse
 class Enemy {
 public:
     string name;
@@ -43,6 +46,7 @@ public:
         // Implementiere die Logik für den Angriff des Gegners
     }
 };
+//Spielerklasse
 class Player{
     public: 
         string name;
@@ -50,6 +54,7 @@ class Player{
         string playerClass;
         string weapon;
         string weaponType;
+        int damage;
         
         Player(string name, string playerClass) : name(name), playerClass(playerClass) {
 
@@ -57,39 +62,52 @@ class Player{
                 hitpoints = 100;
                 weapon = "Bogen";
                 weaponType = "Fernkampf";
+                damage = 10;
             } else if (playerClass == "Krieger"){
                 hitpoints = 150;
                 weapon = "Schwert";
                 weaponType = "Nahkampf";
+                damage = 15;
             } else if (playerClass == "Schurke"){
                 hitpoints = 80;
                 weapon = "Dolche";
                 weaponType = "Nahkampf";
+                damage = 20;
             }
         }
 
 
         void showStats(){
+            //Abrufen der Stats
             cout << "Spieler: " << name << ", Gesundheit: " << hitpoints << endl;
         }
-        void attack() {
-        // Implementiere die Logik für den Angriff des Spielers
+        void attack(Player* Player, Enemy* Enemy) {
+            //Angriffslogik für Spieler
+
     }
 };
-
+//Raumklasse
 class Room{
     public:
         bool hostile;
-        
+        int enemycount;
+        bool containsObjekt;
 
 };
+
 // Funktion, um den Spielzustand zu aktualisieren und auf Eingaben zu reagieren
 void updateGameState(string input) {
-      // Aufteilen der Eingabe in Wörter
     stringstream ss(input);
     string word;
     vector<string> words;
+    //Liste an wörtern für vorwärts
+    string forward = "weiter vor vorwärts";
+    //Liste an wörtern für rückwärts
+    string backwards = "zurück rückwärts";
+
+      // Aufteilen der Eingabe in Wörter
     while (ss >> word) {
+        transform(words.begin(), words.end(), word.begin(), ::tolower);
         words.push_back(word);
     }
 
@@ -100,7 +118,22 @@ void updateGameState(string input) {
 
         // Befehl überprüfen und entsprechende Aktion ausführen
         if (command == "gehe") {
-            // TODO: Füge Code hinzu, um den Spieler in einen anderen Raum zu bewegen
+            if (words.size()> 1){
+                //Das zweite wort ist die anweisung daruaf wohin es gehen soll
+                string direction = words[1];
+                    
+                if (forward.find(direction) != string::npos){
+                    // Spieler geht weiter
+                }else if (backwards.find(direction) != string::npos){
+                    //Spieler geht zurück
+                } else {
+                    //Spieler hat falsche richtung angegeben
+                cout << "Unbekannte Richtung: " << direction << endl;
+                }
+            }else {
+                //Spieler hat keine richtung angegeben
+                cout << "Keine Richtung angegeben." << endl;
+            }
         } else if (command == "untersuche") {
             // TODO: Füge Code hinzu, um ein Objekt zu untersuchen
         } else if (command == "benutze") {
@@ -146,13 +179,13 @@ int main() {
     // Spielbegrüßung
     cout << "Willkommen zum Textadventure!" << endl;
 
-
+    cout << "Möchtest du ein neues Spiel starten oder einen Spielstand laden?" << endl;
+    cin >> input;
+    renderGameStart(input);
+    
     // Hauptschleife des Spiels
     while (true) {
         // Spielzustand anzeigen
-        cout << "Möchtest du ein neues Spiel starten oder einen Spielstand laden?" << endl;
-        cin >> input;
-        renderGameStart(input);
 
         // Eingabe des Spielers abfragen
         cout << "Was möchtest du tun? ";
