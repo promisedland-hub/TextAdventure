@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <sstream>
+#include <fstream>
 #include <vector>
 #include <algorithm>
 #include <cctype>
@@ -10,6 +11,10 @@ using namespace std;
 
 string startCommands = "start neu";
 string loadCommands = "laden lade";
+string saveCommands = "speichern speicher";
+string walkCommands = "gehe";
+string useCommands = "benutze";
+string searchCommands = "untersuche suche";
 string directions = "weiter vor vorwärts zurück rückwärts";
 // Gegnerklasse
 class Enemy
@@ -17,30 +22,25 @@ class Enemy
 public:
     string name;
     int hitpoints;
-    string enemyClass;
-    string weapon;
-    string weaponType;
+    int strenght;
 
     Enemy(string name, int hitpoints) : name(name), hitpoints(hitpoints)
     {
 
-        if (enemyClass == "Goblin")
+        if (name == "Goblin")
         {
             hitpoints = 20;
-            weapon = "Kurzschwert";
-            weaponType = "Nahkampf";
+            strenght = 10;
         }
-        else if (enemyClass == "Ogre")
+        else if (name == "Ogre")
         {
             hitpoints = 50;
-            weapon = "Bogen";
-            weaponType = "Fernkampf";
+            strenght = 20;
         }
-        else if (enemyClass == "Skeleton Archer")
+        else if (name == "Skeleton Archer")
         {
             hitpoints = 10;
-            weapon = "Bogen";
-            weaponType = "Fernkampf";
+            strenght = 5;
         }
     }
 
@@ -52,6 +52,21 @@ public:
     void attack()
     {
         // Implementiere die Logik für den Angriff des Gegners
+    }
+    void save(ofstream &outputFile)
+    {
+        outputFile << "Enemy" << endl;
+        outputFile << name << endl;
+        outputFile << hitpoints << endl;
+        outputFile << strenght << endl;
+    }
+    void load(ifstream &inputFile)
+    {
+        string type;
+        inputFile >> type;
+        inputFile >> name;
+        inputFile >> hitpoints;
+        inputFile >> strenght;
     }
 };
 // Spielerklasse
@@ -150,7 +165,7 @@ void updateGameState(string input)
         string command = words[0];
 
         // Befehl überprüfen und entsprechende Aktion ausführen
-        if (command == "gehe")
+        if (walkCommands.find(command) != string::npos)
         {
             if (words.size() > 1)
             {
@@ -169,6 +184,8 @@ void updateGameState(string input)
                 {
                     // Spieler hat falsche richtung angegeben
                     cout << "Unbekannte Richtung: " << direction << endl;
+                    getline(cin, input);
+                    updateGameState(input);
                 }
             }
             else
@@ -177,18 +194,21 @@ void updateGameState(string input)
                 cout << "Keine Richtung angegeben." << endl;
             }
         }
-        else if (command == "untersuche")
+        else if (searchCommands.find(command) != string::npos)
         {
             // TODO: Füge Code hinzu, um ein Objekt zu untersuchen
         }
-        else if (command == "benutze")
+        else if (useCommands.find(command) != string::npos)
         {
             // TODO: Füge Code hinzu, um ein Objekt zu benutzen
+        }
+        else if (saveCommands.find(command) != string::npos)
+        {
         }
         else
         {
             // Unbekannter Befehl
-            unknownCommand(command,false);
+            unknownCommand(command, false);
         }
     }
 }
@@ -270,7 +290,8 @@ void unknownCommand(string command, bool startCommand)
 void unknownDirection(string direction)
 {
     cout << "Unbekannte Richtung. "
-            "Folgende Richtungen sind zulässig: " << directions << endl;
+            "Folgende Richtungen sind zulässig: "
+         << directions << endl;
 }
 int main()
 {
