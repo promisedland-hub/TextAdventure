@@ -4,11 +4,16 @@
 #include <vector>
 #include <algorithm>
 #include <cctype>
+#include <random>
 
 using namespace std;
 
-//Gegnerklasse
-class Enemy {
+string startCommands = "start neu";
+string loadCommands = "laden lade";
+string directions = "weiter vor vorwärts zurück rückwärts";
+// Gegnerklasse
+class Enemy
+{
 public:
     string name;
     int hitpoints;
@@ -16,177 +21,273 @@ public:
     string weapon;
     string weaponType;
 
-    Enemy(string name, int hitpoints) : name(name), hitpoints(hitpoints) {
+    Enemy(string name, int hitpoints) : name(name), hitpoints(hitpoints)
+    {
 
         if (enemyClass == "Goblin")
         {
             hitpoints = 20;
             weapon = "Kurzschwert";
             weaponType = "Nahkampf";
-        } else if (enemyClass == "Ogre")
+        }
+        else if (enemyClass == "Ogre")
         {
             hitpoints = 50;
             weapon = "Bogen";
             weaponType = "Fernkampf";
-
-        } else if (enemyClass == "Skeleton Archer")
+        }
+        else if (enemyClass == "Skeleton Archer")
         {
             hitpoints = 10;
-                weapon = "Bogen";
-                weaponType = "Fernkampf";
-
+            weapon = "Bogen";
+            weaponType = "Fernkampf";
         }
     }
 
-    void showStats() {
+    void showStats()
+    {
         cout << "Gegner: " << name << ", Gesundheit: " << hitpoints << endl;
     }
 
-    void attack() {
+    void attack()
+    {
         // Implementiere die Logik für den Angriff des Gegners
     }
 };
-//Spielerklasse
-class Player{
-    public: 
-        string name;
-        int hitpoints;
-        string playerClass;
-        string weapon;
-        string weaponType;
-        int damage;
-        
-        Player(string name, string playerClass) : name(name), playerClass(playerClass) {
+// Spielerklasse
+class Player
+{
+public:
+    string name;
+    int hitpoints;
+    string playerClass;
+    string weapon;
+    string weaponType;
+    int damage;
 
-            if (playerClass == "Jäger"){
-                hitpoints = 100;
-                weapon = "Bogen";
-                weaponType = "Fernkampf";
-                damage = 10;
-            } else if (playerClass == "Krieger"){
-                hitpoints = 150;
-                weapon = "Schwert";
-                weaponType = "Nahkampf";
-                damage = 15;
-            } else if (playerClass == "Schurke"){
-                hitpoints = 80;
-                weapon = "Dolche";
-                weaponType = "Nahkampf";
-                damage = 20;
-            }
+    Player(string name, string playerClass) : name(name), playerClass(playerClass)
+    {
+
+        if (playerClass == "Jäger")
+        {
+            hitpoints = 100;
+            weapon = "Bogen";
+            weaponType = "Fernkampf";
+            damage = 10;
         }
-
-
-        void showStats(){
-            //Abrufen der Stats
-            cout << "Spieler: " << name << ", Gesundheit: " << hitpoints << endl;
+        else if (playerClass == "Krieger")
+        {
+            hitpoints = 150;
+            weapon = "Schwert";
+            weaponType = "Nahkampf";
+            damage = 15;
         }
-        void attack(Player* Player, Enemy* Enemy) {
-            //Angriffslogik für Spieler
+        else if (playerClass == "Schurke")
+        {
+            hitpoints = 80;
+            weapon = "Dolche";
+            weaponType = "Nahkampf";
+            damage = 20;
+        }
+    }
 
+    void showStats()
+    {
+        // Abrufen der Stats
+        cout << "Spieler: " << name << ", Gesundheit: " << hitpoints << endl;
+    }
+    void attack(Player *Player, Enemy *Enemy)
+    {
+        // Angriffslogik für Spieler
     }
 };
-//Raumklasse
-class Room{
-    public:
-        bool hostile;
-        int enemycount;
-        bool containsObjekt;
+// Raumklasse
+class Room
+{
+public:
+    string name;
+    bool hostile;
+    int enemycount;
 
+    Room(string name, bool hostile, int enemycount, bool containsObjekt) : name(name), hostile(hostile)
+    {
+
+        if (hostile == true)
+        {
+            random_device rd;
+            mt19937 generator(rd());
+            int min = 0;
+            int max = 3;
+            uniform_int_distribution<int> distribution(min, max);
+
+            enemycount = distribution(generator);
+        }
+    }
 };
 
 // Funktion, um den Spielzustand zu aktualisieren und auf Eingaben zu reagieren
-void updateGameState(string input) {
+void updateGameState(string input)
+{
     stringstream ss(input);
     string word;
     vector<string> words;
-    //Liste an wörtern für vorwärts
+    // Liste an wörtern für vorwärts
     string forward = "weiter vor vorwärts";
-    //Liste an wörtern für rückwärts
+    // Liste an wörtern für rückwärts
     string backwards = "zurück rückwärts";
 
-      // Aufteilen der Eingabe in Wörter
-    while (ss >> word) {
+    // Aufteilen der Eingabe in Wörter
+    while (ss >> word)
+    {
         transform(words.begin(), words.end(), word.begin(), ::tolower);
         words.push_back(word);
     }
 
     // Überprüfen der Schlüsselwörter
-    if (words.size() > 0) {
+    if (words.size() > 0)
+    {
         // Das erste Wort entspricht dem Befehl des Spielers
         string command = words[0];
 
         // Befehl überprüfen und entsprechende Aktion ausführen
-        if (command == "gehe") {
-            if (words.size()> 1){
-                //Das zweite wort ist die anweisung daruaf wohin es gehen soll
+        if (command == "gehe")
+        {
+            if (words.size() > 1)
+            {
+                // Das zweite wort ist die anweisung daruaf wohin es gehen soll
                 string direction = words[1];
-                    
-                if (forward.find(direction) != string::npos){
+
+                if (forward.find(direction) != string::npos)
+                {
                     // Spieler geht weiter
-                }else if (backwards.find(direction) != string::npos){
-                    //Spieler geht zurück
-                } else {
-                    //Spieler hat falsche richtung angegeben
-                cout << "Unbekannte Richtung: " << direction << endl;
                 }
-            }else {
-                //Spieler hat keine richtung angegeben
+                else if (backwards.find(direction) != string::npos)
+                {
+                    // Spieler geht zurück
+                }
+                else
+                {
+                    // Spieler hat falsche richtung angegeben
+                    cout << "Unbekannte Richtung: " << direction << endl;
+                }
+            }
+            else
+            {
+                // Spieler hat keine richtung angegeben
                 cout << "Keine Richtung angegeben." << endl;
             }
-        } else if (command == "untersuche") {
+        }
+        else if (command == "untersuche")
+        {
             // TODO: Füge Code hinzu, um ein Objekt zu untersuchen
-        } else if (command == "benutze") {
+        }
+        else if (command == "benutze")
+        {
             // TODO: Füge Code hinzu, um ein Objekt zu benutzen
-        } else {
+        }
+        else
+        {
             // Unbekannter Befehl
-            cout << "Unbekannter Befehl: " << command << endl;
-            cout << "Folgende Befehle sind zulässig: " << "gehe, untersuche, benutze, angreifen" << endl;
+            unknownCommand(command,false);
         }
     }
 }
 
-
 // Funktion, um den aktuellen Spielzustand auszugeben
-void renderGameState(string action) {
+void renderGameState(string action)
+{
     // TODO: Code zum Rendern hinzufügen
-    if (action == "start"){
-        //TODO : Ausgabe für start
-        
-    } else if (action == "gehe"){
-        //TODO : Ausgabe für gehe
-
-    } else if (action == "untersuche"){
-        //TODO : Ausgabe für untersuche
-    } else if (action == "benutze"){
-        //TODO : Ausgabe für benutze
-    } else if (action == "kaempfe"){
-        //TODO : Ausgabe für kaempfe
+    if (action == "start")
+    {
+        // TODO : Ausgabe für start
+    }
+    else if (action == "gehe")
+    {
+        // TODO : Ausgabe für gehe
+    }
+    else if (action == "untersuche")
+    {
+        // TODO : Ausgabe für untersuche
+    }
+    else if (action == "benutze")
+    {
+        // TODO : Ausgabe für benutze
+    }
+    else if (action == "kaempfe")
+    {
+        // TODO : Ausgabe für kaempfe
+    }
+}
+void renderGameStart(string action)
+{
+    stringstream ss(action);
+    string word;
+    vector<string> words;
+    string input;
+    // Aufteilen der Eingabe in Wörter
+    while (ss >> word)
+    {
+        transform(words.begin(), words.end(), word.begin(), ::tolower);
+        words.push_back(word);
     }
 
-}
-void renderGameStart(string action){
-    if (action == "start"){
-        //TODO Neues Spiel starten
-    } else if (action == "laden"){
-        //TODO Ladefunktion hinzufügen
+    if (words.size() > 0)
+    {
+        // Das erste Wort entspricht dem Befehl des Spielers
+        string command = words[0];
+
+        // Befehl überprüfen und entsprechende Aktion ausführen
+        if (startCommands.find(command) != string::npos)
+        {
+            cout << "Wie lautet dein Name?" << endl;
+        }
+        else if (loadCommands.find(command) != string::npos)
+        {
+        }
+        else
+        {
+            unknownCommand(command, true);
+            getline(cin, input);
+            renderGameStart(input);
+        }
     }
 }
 
-int main() {
+void unknownCommand(string command, bool startCommand)
+{
+    cout << "Unbekannter Befehl: " << command << endl;
+    cout << "Folgende Befehle sind zulässig: ";
+
+    if (startCommand == true)
+    {
+        cout << startCommands << " " << loadCommands << endl;
+    }
+    else
+    {
+        cout << "gehe, untersuche, benutze, angreifen" << endl;
+    }
+}
+void unknownDirection(string direction)
+{
+    cout << "Unbekannte Richtung. "
+            "Folgende Richtungen sind zulässig: " << directions << endl;
+}
+int main()
+{
     string input;
 
     // Spielbegrüßung
     cout << "Willkommen zum Textadventure!" << endl;
 
     cout << "Möchtest du ein neues Spiel starten oder einen Spielstand laden?" << endl;
-    cin >> input;
+    getline(cin, input);
     renderGameStart(input);
-    
-    // Hauptschleife des Spiels
-    while (true) {
-        // Spielzustand anzeigen
 
+    // Hauptschleife des Spiels
+    while (true)
+    {
+        // Spielzustand anzeigen
+        cout << "Du befindest dich in";
         // Eingabe des Spielers abfragen
         cout << "Was möchtest du tun? ";
         getline(cin, input);
