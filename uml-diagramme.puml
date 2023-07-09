@@ -1,0 +1,42 @@
+@startuml Textadventure UML
+
+Class Player
+Player : +string name;
+Player : +int hitpoints;
+Player : +string playerClass;
+Player : +string weapon;
+Player : +string weaponType;
+Player : +int strenght;
+Player : +void showStats();
+Player : +void attack(Player *Player, Enemy *Enemy);
+Player : +void save(ofstream &outputFile);
+Player : +void load(ifstream &inputFile);
+Player : +void setName(string choosenName);
+Player : +void setClass(string choosenClass);
+
+Player "1" -- "many" Enemy : fight >
+Player "1" -- "many" Room : pass >
+
+Class Enemy
+Enemy : +int type;
+Enemy : +string name;
+Enemy : +int hitpoints;
+Enemy : +int strenght;
+Enemy : +void load(ifstream &inputFile);
+Enemy : +void save(ofstream &outputFile);
+Enemy : +void attack();
+Enemy : +void showStats();
+
+Enemy "many" -- "1" Player : fight >
+
+Class Room
+Room "1" o-- "multiple" Enemy : contains >
+Room : +string name;
+Room : +bool hostile;
+Room : +int enemycount;
+Room : +vector<pair<Direction, int>> connectedRooms;
+Room : +vector<Enemy> enemies;
+Room : +void addConnection(Direction direction, int connectedRoom)
+
+
+@enduml
