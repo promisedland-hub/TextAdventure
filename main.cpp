@@ -15,32 +15,44 @@ string saveCommands = "speichern speicher";
 string walkCommands = "gehe";
 string useCommands = "benutze";
 string searchCommands = "untersuche suche";
-string directions = "weiter vor vorwärts zurück rückwärts";
-string classList = "Jäger Krieger Schurke";
+string directions = "weiter vor vorwärts zurueck rueckwaerts";
+string classList = "Jaeger Krieger Schurke";
+string statsCommands = "stats werte ueberpruefen";
 
+enum Direction
+{
+    Oben,
+    Unten,
+    Links,
+    Rechts
+};
 // Gegnerklasse
 class Enemy
 {
 public:
+    int type;
     string name;
     int hitpoints;
     int strenght;
 
-    Enemy(string name, int hitpoints) : name(name), hitpoints(hitpoints)
+    Enemy(int i) : type(i)
     {
 
-        if (name == "Goblin")
+        if (type == 1)
         {
+            name = "Goblin";
             hitpoints = 20;
             strenght = 10;
         }
-        else if (name == "Ogre")
+        else if (type == 2)
         {
+            name = "Ogre";
             hitpoints = 50;
             strenght = 20;
         }
-        else if (name == "Skeleton Archer")
+        else if (type == 3)
         {
+            name = "Skeleton Archer";
             hitpoints = 10;
             strenght = 5;
         }
@@ -110,8 +122,8 @@ public:
 
     void load(ifstream &inputFile)
     {
-        string type;
-        inputFile >> type;
+        // string type;
+        // inputFile >> type;
         inputFile >> name;
         inputFile >> playerClass;
         inputFile >> weapon;
@@ -119,8 +131,49 @@ public:
         inputFile >> hitpoints;
         inputFile >> strenght;
     }
+    void setName(string choosenName)
+    {
+        name = choosenName;
+    }
+
+    void setClass(string choosenClass)
+    {
+        playerClass = choosenClass;
+
+        if (playerClass == "Jaeger")
+        {
+            hitpoints = 100;
+            weapon = "Bogen";
+            weaponType = "Fernkampf";
+            strenght = 10;
+            cout << name << " der erfahrene " << playerClass << " viel Spaß beim Spielen." << endl;
+        }
+        else if (playerClass == "Krieger")
+        {
+            hitpoints = 150;
+            weapon = "Schwert";
+            weaponType = "Nahkampf";
+            strenght = 15;
+            cout << name << " der starke " << playerClass << " viel Spaß beim Spielen." << endl;
+        }
+        else if (playerClass == "Schurke")
+        {
+            hitpoints = 80;
+            weapon = "Dolche";
+            weaponType = "Nahkampf";
+            strenght = 20;
+            cout << name << " der listige " << playerClass << " viel Spaß beim Spielen." << endl;
+        }
+        else
+        {
+            cout << "Unbekannte Klasse " << playerClass << endl;
+            cout << "Bitte wähle eine der Folgenden Klassen: " << classList << endl;
+            string input;
+            getline(cin, input);
+            setClass(input);
+        }
+    }
 };
-Player player("", "");
 // Raumklasse
 class Room
 {
@@ -128,51 +181,108 @@ public:
     string name;
     bool hostile;
     int enemycount;
+    vector<pair<Direction, int>> connectedRooms;
+    vector<Enemy> enemies;
 
-    Room(string name, bool hostile, int enemycount, bool containsObjekt) : name(name), hostile(hostile)
+    Room(string name, bool hostile) : name(name), hostile(hostile)
     {
 
         if (hostile == true)
         {
             random_device rd;
             mt19937 generator(rd());
-            int min = 0;
+            int min = 1;
             int max = 3;
+            int enemyCount2;
+            int enemyType;
             uniform_int_distribution<int> distribution(min, max);
 
             enemycount = distribution(generator);
+            enemyCount2 = enemycount;
+            while (enemyCount2 > 0)
+            {
+                enemyType = distribution(generator);
+                Enemy enemy(enemyType);
+                enemies.push_back(enemy);
+                enemyCount2--;
+            }
         }
     }
-    void save(ofstream &outputFile)
+    void addConnection(Direction direction, int connectedRoom)
     {
-    }
-
-    void load(ifstream &inputFiled)
-    {
+        connectedRooms.emplace_back(direction, connectedRoom);
     }
 };
-void saveGameState(const string &filename, Player &player /*, Enemy &enemy, Room &room */)
+
+Player player("", "");
+vector<Room> map;
+
+bool isFileEmpty(const string &filename);
+void saveGameState(const string &filename);
+void loadGameState(const string &filename);
+void renderGameStart(string action);
+void renderGameState(string action);
+void unknownCommand(string command, bool startCommand);
+void unknownDirection(string direction);
+void updateGameState(string input);
+void saveMapToFile(const string &filename);
+void loadMapFromFile(const string &filename);
+void createMap();
+
+// Prüfen ob Datei bereits Daten enthält
+bool isFileEmpty(const string &filename)
+{
+    ifstream file(filename);
+    return file.peek() == ifstream::traits_type::eof();
+}
+// Speichern des Spieles
+void saveGameState(const string &filename)
 // Speichern des Spieles
 {
     ofstream outputFile(filename);
 
-    if (outputFile.is_open())
+    if (!isFileEmpty(filename))
     {
-        player.save(outputFile);
-        // enemy.save(outputFile);
-        // room.save(outputFile);
+        string input;
+        cout << "Es gibt bereits einen Spielstand. Soll dieser Überschrieben werden?" << endl;
 
-        outputFile.close();
-        cout << "Spielstand erflogreich gespeichert." << endl;
+        getline(cin, input);
+        if (input == "Ja")
+        {
+            if (outputFile.is_open())
+            {
+                player.save(outputFile);
+                saveMapToFile("map.txt");
+
+                outputFile.close();
+                cout << "Spielstand erflogreich gespeichert." << endl;
+            }
+            else
+            {
+                cout << "Fehler beim Öffnen der Datei zum Speichern des Spieles";
+            }
+        }
     }
     else
     {
-        cout << "Fehler beim Öffnen der Datei zum Speichern des Spieles";
+        if (outputFile.is_open())
+        {
+            player.save(outputFile);
+            saveMapToFile("map.txt");
+
+            outputFile.close();
+            cout << "Spielstand erflogreich gespeichert." << endl;
+        }
+        else
+        {
+            cout << "Fehler beim Öffnen der Datei zum Speichern des Spieles";
+        }
     }
 }
 // Laden des Spieles
-void loadGameState(const string &filename, Player &player /*, Enemy &enemy, Room &room */)
+void loadGameState(const string &filename)
 {
+    string input;
     ifstream inputFile(filename);
 
     if (inputFile.is_open())
@@ -198,12 +308,43 @@ void loadGameState(const string &filename, Player &player /*, Enemy &enemy, Room
 
         inputFile.close();
         cout << "Spielstand erfolgreich geladen." << endl;
+        cout << "Willkommen zurück " << player.name << endl;
     }
     else
     {
-        cout << "Fehler beim Öffnen der Datei zum Lden des Spielstandes.";
+        cout << "Fehler beim Öffnen der Datei zum Laden des Spielstandes." << endl;
+        cout << "Möchstest du ein neues Spiel starten?" << endl;
+        getline(cin, input);
+
+        stringstream ss(input);
+        string word;
+        vector<string> words;
+        string acceptCommands = "ja start starten";
+        string denieCommands = "nein abbrechen zurück";
+
+        while (ss >> word)
+        {
+            transform(word.begin(), word.end(), word.begin(), static_cast<int (*)(int)>(tolower));
+            words.push_back(word);
+        }
+
+        if (words.size() > 0)
+        {
+            string command = words[0];
+
+            if (acceptCommands.find(command) != string::npos)
+            {
+                renderGameStart("start");
+            }
+            else if (denieCommands.find(command) != string::npos)
+            {
+                cout << "Spiel Start abgelehnt. Spiel wird geschlossen.";
+                exit(0);
+            }
+        }
     }
 }
+// Ausgabe falls Unbekannter befehl eingegeben wurde
 void unknownCommand(string command, bool startCommand)
 {
     cout << "Unbekannter Befehl: " << command << endl;
@@ -218,11 +359,11 @@ void unknownCommand(string command, bool startCommand)
         cout << "gehe, untersuche, benutze, angreifen" << endl;
     }
 }
+// Ausgabe falls unbekannte Richtung eingegeben wurde
 void unknownDirection(string direction)
 {
     cout << "Unbekannte Richtung. "
-            "Folgende Richtungen sind zulässig: "
-         << directions << endl;
+         << "Folgende Richtungen sind zulässig: " << directions << endl;
 }
 // Funktion, um den Spielzustand zu aktualisieren und auf Eingaben zu reagieren
 void updateGameState(string input)
@@ -288,7 +429,11 @@ void updateGameState(string input)
         }
         else if (saveCommands.find(command) != string::npos)
         {
-            saveGameState("spielstand.txt", player);
+            saveGameState("spielstand.txt");
+        }
+        else if (statsCommands.find(command) != string::npos)
+        {
+            player.showStats();
         }
         else
         {
@@ -297,7 +442,6 @@ void updateGameState(string input)
         }
     }
 }
-
 // Funktion, um den aktuellen Spielzustand auszugeben
 void renderGameState(string action)
 {
@@ -323,6 +467,7 @@ void renderGameState(string action)
         // TODO : Ausgabe für kaempfe
     }
 }
+// Initialisierung des Spielstartes oder Ladens
 void renderGameStart(string action)
 {
     stringstream ss(action);
@@ -344,48 +489,174 @@ void renderGameStart(string action)
         // Befehl überprüfen und entsprechende Aktion ausführen
         if (startCommands.find(command) != string::npos)
         {
+            createMap();
             cout << "Wie lautet dein Name?" << endl;
             getline(cin, input);
-            player.name = input;
+            player.setName(input);
 
             cout << "Welche Klasse möchtest du sein? " << classList << endl;
             getline(cin, input);
-            player.playerClass = input;
-
-            if (player.playerClass == "Jäger")
-            {
-                player.hitpoints = 100;
-                player.weapon = "Bogen";
-                player.weaponType = "Fernkampf";
-                player.strenght = 10;
-                cout << player.name << " der erfahrene " << player.playerClass << "viel Spaß beim Spielen." << endl;
-            }
-            else if (player.playerClass == "Krieger")
-            {
-                player.hitpoints = 150;
-                player.weapon = "Schwert";
-                player.weaponType = "Nahkampf";
-                player.strenght = 15;
-                cout << player.name << " der starke " << player.playerClass << "viel Spaß beim Spielen." << endl;
-            }
-            else if (player.playerClass == "Schurke")
-            {
-                player.hitpoints = 80;
-                player.weapon = "Dolche";
-                player.weaponType = "Nahkampf";
-                player.strenght = 20;
-                cout << player.name << " der listige " << player.playerClass << "viel Spaß beim Spielen." << endl;
-            }
+            player.setClass(input);
         }
         else if (loadCommands.find(command) != string::npos)
         {
-            loadGameState("spielstand.txt", player);
+            loadGameState("spielstand.txt");
+            loadMapFromFile("map.txt");
         }
         else
         {
             unknownCommand(command, true);
             getline(cin, input);
             renderGameStart(input);
+        }
+    }
+}
+// Erstellen der Karte
+void createMap()
+{
+    Room start("start", false);
+    start.addConnection(Oben, 1);
+    map.push_back(start);
+
+    Room room1("room1", true);
+    room1.addConnection(Unten, 0);
+    room1.addConnection(Links, 2);
+    room1.addConnection(Rechts, 5);
+    map.push_back(room1);
+
+    Room room2("room2", false);
+    room2.addConnection(Rechts, 1);
+    room2.addConnection(Oben, 3);
+    map.push_back(room2);
+
+    Room room3("room3", true);
+    room3.addConnection(Links, 4);
+    room3.addConnection(Unten, 2);
+    map.push_back(room3);
+
+    Room room4("room4", false);
+    room4.addConnection(Links, 3);
+    map.push_back(room4);
+
+    Room room5("room5", false);
+    room5.addConnection(Links, 1);
+    room5.addConnection(Oben, 6);
+    map.push_back(room5);
+
+    Room room6("room6", true);
+    room6.addConnection(Unten, 5);
+    room6.addConnection(Oben, 6);
+    map.push_back(room6);
+
+    Room room7("room7", true);
+    room7.addConnection(Unten, 6);
+    room7.addConnection(Links, 8);
+    map.push_back(room7);
+
+    Room room8("room8", false);
+    room8.addConnection(Rechts, 7);
+    room8.addConnection(Oben, 9);
+    map.push_back(room8);
+
+    Room boss("boss", true);
+    boss.addConnection(Unten, 8);
+    map.push_back(boss);
+
+    cout << "Karte erstellt" << endl;
+}
+// Speichern der Karte
+void saveMapToFile(const string &filename)
+{
+    ofstream file(filename);
+    if (file.is_open())
+    {
+        for (const Room &room : map)
+        {
+            file << room.name << endl;
+            file << room.hostile << endl;
+            file << room.enemycount << endl;
+            for (const auto &connection : room.connectedRooms)
+            {
+                file << connection.first << " " << connection.second << endl;
+            }
+            for (const auto &enemy : room.enemies)
+            {
+                file << enemy.type << endl;
+                file << enemy.name << endl;
+                file << enemy.hitpoints << endl;
+                file << enemy.strenght << endl;
+            }
+            file << endl;
+        }
+        file.close();
+        cout << "Karte gespeichert" << endl;
+    }
+    else
+    {
+        cout << "Fehler beim Öffnen der Datei zum Speichern der Karte." << endl;
+    }
+}
+// Laden der Karte
+void loadMapFromFile(const string &filename)
+{
+    ifstream file(filename);
+
+    if (file.is_open())
+    {
+        string line;
+        Room room("", false);
+
+        while (getline(file, line))
+        {
+            if (room.name.empty())
+            {
+                room.name = line;
+            }
+            getline(file, line);
+            if (room.hostile == false)
+            {
+                room.hostile = stoi(line);
+            }
+            getline(file, line);
+            if (room.enemycount == 0)
+            {
+                room.enemycount = stoi(line);
+            }
+            getline(file, line);
+            if (room.connectedRooms.empty())
+            {
+                int direction;
+                int connectedRoom;
+
+                while (line.size() > 1)
+                {
+                    istringstream iss(line);
+                    iss >> direction >> connectedRoom;
+                    room.addConnection(static_cast<Direction>(direction), connectedRoom);
+                    getline(file, line);
+                }
+            }
+            if (room.enemies.empty())
+            {
+                while (!line.empty())
+                {
+                    int enemyType = stoi(line);
+                    int enemyHitpoints;
+                    getline(file, line);
+                    enemyHitpoints = stoi(line);
+                    Enemy enemy(enemyType);
+                    enemy.hitpoints = enemyHitpoints;
+                    room.enemies.push_back(enemy);
+                    getline(file, line);
+                }
+                if (!room.name.empty())
+                {
+                    map.push_back(room);
+                    room = Room("", false);
+                    room.enemycount = 0;
+                    continue;
+                }
+            }
         }
     }
 }
@@ -405,9 +676,9 @@ int main()
     while (true)
     {
         // Spielzustand anzeigen
-        cout << "Du befindest dich in";
+        cout << "Du befindest dich in" << endl;
         // Eingabe des Spielers abfragen
-        cout << "Was möchtest du tun? ";
+        cout << "Was möchtest du tun? " << endl;
         getline(cin, input);
 
         // Spielzustand aktualisieren
@@ -422,6 +693,5 @@ int main()
             exit;
         }
     }
-
     return 0;
 }
