@@ -233,7 +233,8 @@ void createMap();
 bool isFileEmpty(const string &filename)
 {
     ifstream file(filename);
-    return file.peek() == ifstream::traits_type::eof();
+
+    return file.peek() != EOF;
 }
 // Speichern des Spieles
 void saveGameState(const string &filename)
@@ -248,20 +249,20 @@ void saveGameState(const string &filename)
 
         getline(cin, input);
         if (input == "Ja")
-        {
-            if (outputFile.is_open())
             {
-                player.save(outputFile);
-                saveMapToFile("map.txt");
+                if (outputFile.is_open())
+                {
+                    player.save(outputFile);
+                    saveMapToFile("map.txt");
 
-                outputFile.close();
-                cout << "Spielstand erflogreich gespeichert." << endl;
+                    outputFile.close();
+                    cout << "Spielstand erflogreich gespeichert." << endl;
+                }
+                else
+                {
+                    cout << "Fehler beim Öffnen der Datei zum Speichern des Spieles";
+                }
             }
-            else
-            {
-                cout << "Fehler beim Öffnen der Datei zum Speichern des Spieles";
-            }
-        }
     }
     else
     {
@@ -391,54 +392,54 @@ void updateGameState(string input)
 
         // Befehl überprüfen und entsprechende Aktion ausführen
         if (walkCommands.find(command) != string::npos)
-        {
-            if (words.size() > 1)
             {
-                // Das zweite wort ist die anweisung daruaf wohin es gehen soll
-                string direction = words[1];
+                if (words.size() > 1)
+                {
+                    // Das zweite wort ist die anweisung daruaf wohin es gehen soll
+                    string direction = words[1];
 
                 if (forward.find(direction) != string::npos)
-                {
-                    // Spieler geht weiter
-                }
+                        {
+                            // Spieler geht weiter
+                        }
                 else if (backwards.find(direction) != string::npos)
-                {
+                        {
                     // Spieler geht zurück
+                                }
+                                else
+                                {
+                                    // Spieler hat falsche richtung angegeben
+                                    cout << "Unbekannte Richtung: " << direction << endl;
+                                    getline(cin, input);
+                                    updateGameState(input);
+                                }
+                            }
+                else
+                {
+                    // Spieler hat keine richtung angegeben
+                    cout << "Keine Richtung angegeben." << endl;
+                }
+            }
+        else if (searchCommands.find(command) != string::npos)
+                {
+                    // TODO: Füge Code hinzu, um ein Objekt zu untersuchen
+                }
+        else if (useCommands.find(command) != string::npos)
+                {
+                    // TODO: Füge Code hinzu, um ein Objekt zu benutzen
+                }
+        else if (saveCommands.find(command) != string::npos)
+            {
+            saveGameState("spielstand.txt");
+                }
+        else if (statsCommands.find(command) != string::npos)
+            {
+            player.showStats();
                 }
                 else
                 {
-                    // Spieler hat falsche richtung angegeben
-                    cout << "Unbekannte Richtung: " << direction << endl;
-                    getline(cin, input);
-                    updateGameState(input);
-                }
-            }
-            else
-            {
-                // Spieler hat keine richtung angegeben
-                cout << "Keine Richtung angegeben." << endl;
-            }
-        }
-        else if (searchCommands.find(command) != string::npos)
-        {
-            // TODO: Füge Code hinzu, um ein Objekt zu untersuchen
-        }
-        else if (useCommands.find(command) != string::npos)
-        {
-            // TODO: Füge Code hinzu, um ein Objekt zu benutzen
-        }
-        else if (saveCommands.find(command) != string::npos)
-        {
-            saveGameState("spielstand.txt");
-        }
-        else if (statsCommands.find(command) != string::npos)
-        {
-            player.showStats();
-        }
-        else
-        {
-            // Unbekannter Befehl
-            unknownCommand(command, false);
+                    // Unbekannter Befehl
+                    unknownCommand(command, false);
         }
     }
 }
@@ -488,26 +489,26 @@ void renderGameStart(string action)
 
         // Befehl überprüfen und entsprechende Aktion ausführen
         if (startCommands.find(command) != string::npos)
-        {
-            createMap();
-            cout << "Wie lautet dein Name?" << endl;
-            getline(cin, input);
-            player.setName(input);
+            {
+                createMap();
+                cout << "Wie lautet dein Name?" << endl;
+                getline(cin, input);
+                player.setName(input);
 
             cout << "Welche Klasse möchtest du sein? " << classList << endl;
-            getline(cin, input);
-            player.setClass(input);
-        }
+                getline(cin, input);
+                player.setClass(input);
+            }
         else if (loadCommands.find(command) != string::npos)
-        {
-            loadGameState("spielstand.txt");
-            loadMapFromFile("map.txt");
-        }
-        else
-        {
-            unknownCommand(command, true);
-            getline(cin, input);
-            renderGameStart(input);
+            {
+                        loadGameState("spielstand.txt");
+                        loadMapFromFile("map.txt");
+                    }
+                    else
+                    {
+                        unknownCommand(command, true);
+                        getline(cin, input);
+                        renderGameStart(input);
         }
     }
 }
@@ -644,7 +645,7 @@ void loadMapFromFile(const string &filename)
                     int enemyHitpoints;
                     string enemyName;
                     int enemyDamage;
-                    
+
                     getline(file, line);
                     enemyName = line;
                     getline(file, line);
