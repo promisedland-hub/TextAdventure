@@ -3,7 +3,12 @@
         "iostream": "cpp",
         "string": "cpp",
         "iosfwd": "cpp",
-        "array": "cpp"
+        "array": "cpp",
+        "ostream": "cpp",
+        "fstream": "cpp",
+        "*.tcc": "cpp",
+        "unordered_map": "cpp",
+        "string_view": "cpp"
     },
     "cmake.configureOnOpen": true
 }

@@ -1,3 +1,0 @@
-"E:\Program Files\CMake\bin\cmake.exe" -E rm -f CMakeFiles\Textadventure.dir/objects.a
-E:\msys\mingw64\bin\ar.exe qc CMakeFiles\Textadventure.dir/objects.a @CMakeFiles\Textadventure.dir\objects1.rsp
-E:\msys\mingw64\bin\g++.exe -g -Wl,--whole-archive CMakeFiles\Textadventure.dir/objects.a -Wl,--no-whole-archive -o Textadventure.exe -Wl,--out-implib,libTextadventure.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\Textadventure.dir\linkLibs.rsp

@@ -1,5 +1,0 @@
-D:/Programmieren/TextAdventure/build/CMakeFiles/Textadventure.dir
-D:/Programmieren/TextAdventure/build/CMakeFiles/package.dir
-D:/Programmieren/TextAdventure/build/CMakeFiles/package_source.dir
-D:/Programmieren/TextAdventure/build/CMakeFiles/edit_cache.dir
-D:/Programmieren/TextAdventure/build/CMakeFiles/rebuild_cache.dir
