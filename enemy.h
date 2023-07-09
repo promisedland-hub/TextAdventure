@@ -1,17 +1,17 @@
-#ifndef ENEMY_H
-#define ENEMY_H
+// #ifndef ENEMY_H
+// #define ENEMY_H
 
-#include <string>
+// #include <string>
 
-using namespace std;
-class Enemy
-{
-public:
-    Enemy(string name, int hitpoints);
+// using namespace std;
+// class Enemy
+// {
+// public:
+//     Enemy(string name, int hitpoints);
 
-    void showStats();
+//     void showStats();
 
-    void attack();
-};
+//     void attack();
+// };
 
-#endif
+// #endif
