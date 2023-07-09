@@ -99,4 +99,3 @@ boss
 Goblin
 20
 10
-

@@ -15,7 +15,7 @@ string saveCommands = "speichern speicher";
 string walkCommands = "gehe";
 string useCommands = "benutze";
 string searchCommands = "untersuche suche";
-string directions = "weiter vor vorwärts zurueck rueckwaerts";
+string directions = "links rechts vor zurueck weiter ";
 string classList = "Jaeger Krieger Schurke";
 string statsCommands = "stats werte ueberpruefen";
 
@@ -642,9 +642,17 @@ void loadMapFromFile(const string &filename)
                 {
                     int enemyType = stoi(line);
                     int enemyHitpoints;
+                    string enemyName;
+                    int enemyDamage;
+                    
+                    getline(file, line);
+                    enemyName = line;
                     getline(file, line);
                     enemyHitpoints = stoi(line);
+                    getline(file,line);
+                    enemyDamage = stoi(line);
                     Enemy enemy(enemyType);
+                    enemy.name = enemyName;
                     enemy.hitpoints = enemyHitpoints;
                     room.enemies.push_back(enemy);
                     getline(file, line);
@@ -654,7 +662,6 @@ void loadMapFromFile(const string &filename)
                     map.push_back(room);
                     room = Room("", false);
                     room.enemycount = 0;
-                    continue;
                 }
             }
         }
