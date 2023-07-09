@@ -17,7 +17,6 @@ string useCommands = "benutze";
 string searchCommands = "untersuche suche";
 string directions = "weiter vor vorwärts zurück rückwärts";
 string classList = "Jäger Krieger Schurke";
-Player player("", "");
 
 // Gegnerklasse
 class Enemy
@@ -121,6 +120,7 @@ public:
         inputFile >> strenght;
     }
 };
+Player player("", "");
 // Raumklasse
 class Room
 {
@@ -151,7 +151,79 @@ public:
     {
     }
 };
+void saveGameState(const string &filename, Player &player /*, Enemy &enemy, Room &room */)
+// Speichern des Spieles
+{
+    ofstream outputFile(filename);
 
+    if (outputFile.is_open())
+    {
+        player.save(outputFile);
+        // enemy.save(outputFile);
+        // room.save(outputFile);
+
+        outputFile.close();
+        cout << "Spielstand erflogreich gespeichert." << endl;
+    }
+    else
+    {
+        cout << "Fehler beim Öffnen der Datei zum Speichern des Spieles";
+    }
+}
+// Laden des Spieles
+void loadGameState(const string &filename, Player &player /*, Enemy &enemy, Room &room */)
+{
+    ifstream inputFile(filename);
+
+    if (inputFile.is_open())
+    {
+        while (!inputFile.eof())
+        {
+            string type;
+            inputFile >> type;
+
+            if (type == "Player")
+            {
+                player.load(inputFile);
+            }
+            else if (type == "Enemy")
+            {
+                // enemy.load(inputFile);
+            }
+            else if (type == "Room")
+            {
+                // room.load(inputFile);
+            }
+        }
+
+        inputFile.close();
+        cout << "Spielstand erfolgreich geladen." << endl;
+    }
+    else
+    {
+        cout << "Fehler beim Öffnen der Datei zum Lden des Spielstandes.";
+    }
+}
+void unknownCommand(string command, bool startCommand)
+{
+    cout << "Unbekannter Befehl: " << command << endl;
+    cout << "Folgende Befehle sind zulässig: ";
+
+    if (startCommand == true)
+    {
+        cout << startCommands << " " << loadCommands << endl;
+    }
+    else
+    {
+        cout << "gehe, untersuche, benutze, angreifen" << endl;
+    }
+}
+void unknownDirection(string direction)
+{
+    cout << "Unbekannte Richtung. "
+            "Folgende Richtungen sind zulässig: "
+         << directions << endl;
+}
 // Funktion, um den Spielzustand zu aktualisieren und auf Eingaben zu reagieren
 void updateGameState(string input)
 {
@@ -166,7 +238,7 @@ void updateGameState(string input)
     // Aufteilen der Eingabe in Wörter
     while (ss >> word)
     {
-        transform(words.begin(), words.end(), word.begin(), ::tolower);
+        transform(word.begin(), word.end(), word.begin(), static_cast<int (*)(int)>(tolower));
         words.push_back(word);
     }
 
@@ -260,7 +332,7 @@ void renderGameStart(string action)
     // Aufteilen der Eingabe in Wörter
     while (ss >> word)
     {
-        transform(words.begin(), words.end(), word.begin(), ::tolower);
+        transform(word.begin(), word.end(), word.begin(), static_cast<int (*)(int)>(tolower));
         words.push_back(word);
     }
 
@@ -316,80 +388,6 @@ void renderGameStart(string action)
             renderGameStart(input);
         }
     }
-}
-// Speichern des Spieles
-void saveGameState(const string &filename, Player &player /*, Enemy &enemy, Room &room */)
-{
-    ofstream outputFile(filename);
-
-    if (outputFile.is_open())
-    {
-        player.save(outputFile);
-        // enemy.save(outputFile);
-        // room.save(outputFile);
-
-        outputFile.close();
-        cout << "Spielstand erflogreich gespeichert." << endl;
-    }
-    else
-    {
-        cout << "Fehler beim Öffnen der Datei zum Speichern des Spieles";
-    }
-}
-// Laden des Spieles
-void loadGameState(const string &filename, Player &player /*, Enemy &enemy, Room &room */)
-{
-    ifstream inputFile(filename);
-
-    if (inputFile.is_open())
-    {
-        while (!inputFile.eof())
-        {
-            string type;
-            inputFile >> type;
-
-            if (type == "Player")
-            {
-                player.load(inputFile);
-            }
-            else if (type == "Enemy")
-            {
-                // enemy.load(inputFile);
-            }
-            else if (type == "Room")
-            {
-                // room.load(inputFile);
-            }
-        }
-
-        inputFile.close();
-        cout << "Spielstand erfolgreich geladen." << endl;
-    }
-    else
-    {
-        cout << "Fehler beim Öffnen der Datei zum Lden des Spielstandes.";
-    }
-}
-
-void unknownCommand(string command, bool startCommand)
-{
-    cout << "Unbekannter Befehl: " << command << endl;
-    cout << "Folgende Befehle sind zulässig: ";
-
-    if (startCommand == true)
-    {
-        cout << startCommands << " " << loadCommands << endl;
-    }
-    else
-    {
-        cout << "gehe, untersuche, benutze, angreifen" << endl;
-    }
-}
-void unknownDirection(string direction)
-{
-    cout << "Unbekannte Richtung. "
-            "Folgende Richtungen sind zulässig: "
-         << directions << endl;
 }
 
 int main()
