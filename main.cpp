@@ -249,20 +249,20 @@ void saveGameState(const string &filename)
 
         getline(cin, input);
         if (input == "Ja")
+        {
+            if (outputFile.is_open())
             {
-                if (outputFile.is_open())
-                {
-                    player.save(outputFile);
-                    saveMapToFile("map.txt");
+                player.save(outputFile);
+                saveMapToFile("map.txt");
 
-                    outputFile.close();
-                    cout << "Spielstand erflogreich gespeichert." << endl;
-                }
-                else
-                {
-                    cout << "Fehler beim Öffnen der Datei zum Speichern des Spieles";
-                }
+                outputFile.close();
+                cout << "Spielstand erflogreich gespeichert." << endl;
             }
+            else
+            {
+                cout << "Fehler beim Öffnen der Datei zum Speichern des Spieles";
+            }
+        }
     }
     else
     {
@@ -296,14 +296,6 @@ void loadGameState(const string &filename)
             if (type == "Player")
             {
                 player.load(inputFile);
-            }
-            else if (type == "Enemy")
-            {
-                // enemy.load(inputFile);
-            }
-            else if (type == "Room")
-            {
-                // room.load(inputFile);
             }
         }
 
@@ -392,54 +384,54 @@ void updateGameState(string input)
 
         // Befehl überprüfen und entsprechende Aktion ausführen
         if (walkCommands.find(command) != string::npos)
+        {
+            if (words.size() > 1)
             {
-                if (words.size() > 1)
-                {
-                    // Das zweite wort ist die anweisung daruaf wohin es gehen soll
-                    string direction = words[1];
+                // Das zweite wort ist die anweisung daruaf wohin es gehen soll
+                string direction = words[1];
 
                 if (forward.find(direction) != string::npos)
-                        {
-                            // Spieler geht weiter
-                        }
+                {
+                    // Spieler geht weiter
+                }
                 else if (backwards.find(direction) != string::npos)
-                        {
+                {
                     // Spieler geht zurück
-                                }
-                                else
-                                {
-                                    // Spieler hat falsche richtung angegeben
-                                    cout << "Unbekannte Richtung: " << direction << endl;
-                                    getline(cin, input);
-                                    updateGameState(input);
-                                }
-                            }
+                }
                 else
                 {
-                    // Spieler hat keine richtung angegeben
-                    cout << "Keine Richtung angegeben." << endl;
+                    // Spieler hat falsche richtung angegeben
+                    cout << "Unbekannte Richtung: " << direction << endl;
+                    getline(cin, input);
+                    updateGameState(input);
                 }
             }
+            else
+            {
+                // Spieler hat keine richtung angegeben
+                cout << "Keine Richtung angegeben." << endl;
+            }
+        }
         else if (searchCommands.find(command) != string::npos)
-                {
-                    // TODO: Füge Code hinzu, um ein Objekt zu untersuchen
-                }
+        {
+            // TODO: Füge Code hinzu, um ein Objekt zu untersuchen
+        }
         else if (useCommands.find(command) != string::npos)
-                {
-                    // TODO: Füge Code hinzu, um ein Objekt zu benutzen
-                }
+        {
+            // TODO: Füge Code hinzu, um ein Objekt zu benutzen
+        }
         else if (saveCommands.find(command) != string::npos)
-            {
+        {
             saveGameState("spielstand.txt");
-                }
+        }
         else if (statsCommands.find(command) != string::npos)
-            {
+        {
             player.showStats();
-                }
-                else
-                {
-                    // Unbekannter Befehl
-                    unknownCommand(command, false);
+        }
+        else
+        {
+            // Unbekannter Befehl
+            unknownCommand(command, false);
         }
     }
 }
@@ -489,26 +481,26 @@ void renderGameStart(string action)
 
         // Befehl überprüfen und entsprechende Aktion ausführen
         if (startCommands.find(command) != string::npos)
-            {
-                createMap();
-                cout << "Wie lautet dein Name?" << endl;
-                getline(cin, input);
-                player.setName(input);
+        {
+            createMap();
+            cout << "Wie lautet dein Name?" << endl;
+            getline(cin, input);
+            player.setName(input);
 
             cout << "Welche Klasse möchtest du sein? " << classList << endl;
-                getline(cin, input);
-                player.setClass(input);
-            }
+            getline(cin, input);
+            player.setClass(input);
+        }
         else if (loadCommands.find(command) != string::npos)
-            {
-                        loadGameState("spielstand.txt");
-                        loadMapFromFile("map.txt");
-                    }
-                    else
-                    {
-                        unknownCommand(command, true);
-                        getline(cin, input);
-                        renderGameStart(input);
+        {
+            loadGameState("spielstand.txt");
+            loadMapFromFile("map.txt");
+        }
+        else
+        {
+            unknownCommand(command, true);
+            getline(cin, input);
+            renderGameStart(input);
         }
     }
 }
@@ -609,63 +601,49 @@ void loadMapFromFile(const string &filename)
 
         while (getline(file, line))
         {
-            if (room.name.empty())
-            {
-                room.name = line;
-            }
+            room.name = line;
             getline(file, line);
-            if (room.hostile == false)
-            {
-                room.hostile = stoi(line);
-            }
+            room.hostile = stoi(line);
             getline(file, line);
-            if (room.enemycount == 0)
-            {
-                room.enemycount = stoi(line);
-            }
+            room.enemycount = stoi(line);
             getline(file, line);
-            if (room.connectedRooms.empty())
-            {
-                int direction;
-                int connectedRoom;
+            int direction;
+            int connectedRoom;
 
-                while (line.size() > 1)
-                {
-                    istringstream iss(line);
-                    iss >> direction >> connectedRoom;
-                    room.addConnection(static_cast<Direction>(direction), connectedRoom);
-                    getline(file, line);
-                }
-            }
-            if (room.enemies.empty())
+            while (line.size() > 1)
             {
-                while (!line.empty())
-                {
-                    int enemyType = stoi(line);
-                    int enemyHitpoints;
-                    string enemyName;
-                    int enemyDamage;
-
-                    getline(file, line);
-                    enemyName = line;
-                    getline(file, line);
-                    enemyHitpoints = stoi(line);
-                    getline(file,line);
-                    enemyDamage = stoi(line);
-                    Enemy enemy(enemyType);
-                    enemy.name = enemyName;
-                    enemy.hitpoints = enemyHitpoints;
-                    room.enemies.push_back(enemy);
-                    getline(file, line);
-                }
-                if (!room.name.empty())
-                {
-                    map.push_back(room);
-                    room = Room("", false);
-                    room.enemycount = 0;
-                }
+                istringstream iss(line);
+                iss >> direction >> connectedRoom;
+                room.addConnection(static_cast<Direction>(direction), connectedRoom);
+                getline(file, line);
             }
+            while (!line.empty())
+            {
+                int enemyType = stoi(line);
+                int enemyHitpoints;
+                string enemyName;
+                int enemyDamage;
+
+                getline(file, line);
+                enemyName = line;
+                getline(file, line);
+                enemyHitpoints = stoi(line);
+                getline(file, line);
+                enemyDamage = stoi(line);
+                Enemy enemy(enemyType);
+                enemy.name = enemyName;
+                enemy.hitpoints = enemyHitpoints;
+                room.enemies.push_back(enemy);
+                getline(file, line);
+            }
+            map.push_back(room);
+            room = Room("", false);
+            room.enemycount = 0;
         }
+    }
+    else
+    {
+        cout << "Fehler beim laden der Datei" << endl;
     }
 }
 
