@@ -16,6 +16,9 @@ string walkCommands = "gehe";
 string useCommands = "benutze";
 string searchCommands = "untersuche suche";
 string directions = "weiter vor vorwärts zurück rückwärts";
+string classList = "Jäger Krieger Schurke";
+Player player("", "");
+
 // Gegnerklasse
 class Enemy
 {
@@ -78,42 +81,44 @@ public:
     string playerClass;
     string weapon;
     string weaponType;
-    int damage;
+    int strenght;
 
     Player(string name, string playerClass) : name(name), playerClass(playerClass)
     {
-
-        if (playerClass == "Jäger")
-        {
-            hitpoints = 100;
-            weapon = "Bogen";
-            weaponType = "Fernkampf";
-            damage = 10;
-        }
-        else if (playerClass == "Krieger")
-        {
-            hitpoints = 150;
-            weapon = "Schwert";
-            weaponType = "Nahkampf";
-            damage = 15;
-        }
-        else if (playerClass == "Schurke")
-        {
-            hitpoints = 80;
-            weapon = "Dolche";
-            weaponType = "Nahkampf";
-            damage = 20;
-        }
     }
 
     void showStats()
     {
         // Abrufen der Stats
-        cout << "Spieler: " << name << ", Gesundheit: " << hitpoints << endl;
+        cout << "Spieler: " << name << ", Gesundheit: " << hitpoints << ", Klasse" << playerClass << endl;
     }
+
     void attack(Player *Player, Enemy *Enemy)
     {
         // Angriffslogik für Spieler
+    }
+
+    void save(ofstream &outputFile)
+    {
+        outputFile << "Player" << endl;
+        outputFile << name << endl;
+        outputFile << playerClass << endl;
+        outputFile << weapon << endl;
+        outputFile << weaponType << endl;
+        outputFile << hitpoints << endl;
+        outputFile << strenght << endl;
+    }
+
+    void load(ifstream &inputFile)
+    {
+        string type;
+        inputFile >> type;
+        inputFile >> name;
+        inputFile >> playerClass;
+        inputFile >> weapon;
+        inputFile >> weaponType;
+        inputFile >> hitpoints;
+        inputFile >> strenght;
     }
 };
 // Raumklasse
@@ -137,6 +142,13 @@ public:
 
             enemycount = distribution(generator);
         }
+    }
+    void save(ofstream &outputFile)
+    {
+    }
+
+    void load(ifstream &inputFiled)
+    {
     }
 };
 
@@ -204,6 +216,7 @@ void updateGameState(string input)
         }
         else if (saveCommands.find(command) != string::npos)
         {
+            saveGameState("spielstand.txt", player);
         }
         else
         {
@@ -260,9 +273,41 @@ void renderGameStart(string action)
         if (startCommands.find(command) != string::npos)
         {
             cout << "Wie lautet dein Name?" << endl;
+            getline(cin, input);
+            player.name = input;
+
+            cout << "Welche Klasse möchtest du sein? " << classList << endl;
+            getline(cin, input);
+            player.playerClass = input;
+
+            if (player.playerClass == "Jäger")
+            {
+                player.hitpoints = 100;
+                player.weapon = "Bogen";
+                player.weaponType = "Fernkampf";
+                player.strenght = 10;
+                cout << player.name << " der erfahrene " << player.playerClass << "viel Spaß beim Spielen." << endl;
+            }
+            else if (player.playerClass == "Krieger")
+            {
+                player.hitpoints = 150;
+                player.weapon = "Schwert";
+                player.weaponType = "Nahkampf";
+                player.strenght = 15;
+                cout << player.name << " der starke " << player.playerClass << "viel Spaß beim Spielen." << endl;
+            }
+            else if (player.playerClass == "Schurke")
+            {
+                player.hitpoints = 80;
+                player.weapon = "Dolche";
+                player.weaponType = "Nahkampf";
+                player.strenght = 20;
+                cout << player.name << " der listige " << player.playerClass << "viel Spaß beim Spielen." << endl;
+            }
         }
         else if (loadCommands.find(command) != string::npos)
         {
+            loadGameState("spielstand.txt", player);
         }
         else
         {
@@ -270,6 +315,59 @@ void renderGameStart(string action)
             getline(cin, input);
             renderGameStart(input);
         }
+    }
+}
+// Speichern des Spieles
+void saveGameState(const string &filename, Player &player /*, Enemy &enemy, Room &room */)
+{
+    ofstream outputFile(filename);
+
+    if (outputFile.is_open())
+    {
+        player.save(outputFile);
+        // enemy.save(outputFile);
+        // room.save(outputFile);
+
+        outputFile.close();
+        cout << "Spielstand erflogreich gespeichert." << endl;
+    }
+    else
+    {
+        cout << "Fehler beim Öffnen der Datei zum Speichern des Spieles";
+    }
+}
+// Laden des Spieles
+void loadGameState(const string &filename, Player &player /*, Enemy &enemy, Room &room */)
+{
+    ifstream inputFile(filename);
+
+    if (inputFile.is_open())
+    {
+        while (!inputFile.eof())
+        {
+            string type;
+            inputFile >> type;
+
+            if (type == "Player")
+            {
+                player.load(inputFile);
+            }
+            else if (type == "Enemy")
+            {
+                // enemy.load(inputFile);
+            }
+            else if (type == "Room")
+            {
+                // room.load(inputFile);
+            }
+        }
+
+        inputFile.close();
+        cout << "Spielstand erfolgreich geladen." << endl;
+    }
+    else
+    {
+        cout << "Fehler beim Öffnen der Datei zum Lden des Spielstandes.";
     }
 }
 
@@ -293,6 +391,7 @@ void unknownDirection(string direction)
             "Folgende Richtungen sind zulässig: "
          << directions << endl;
 }
+
 int main()
 {
     string input;
@@ -319,8 +418,11 @@ int main()
         // Überprüfen auf Spielende
         // TODO: Bedingungen hinzu, um das Spiel zu beenden (z.B. wenn der Spieler gewinnt oder verliert)
 
-        // Leerzeile für bessere Lesbarkeit
-        cout << endl;
+        if (player.hitpoints == 0)
+        {
+            cout << "Game Over.";
+            exit;
+        }
     }
 
     return 0;
