@@ -1,7 +1,7 @@
 Player
-Kevin
-Schurke
-Dolche
+Dany
+Krieger
+Schwert
 Nahkampf
-80
-20
+150
+15
