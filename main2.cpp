@@ -7,6 +7,16 @@
 #include <cctype>
 #include <random>
 
+#include "enemy.hpp"
+// #include "direction.hpp"
+enum DIRECTION : char
+{
+    Oben,
+    Unten,
+    Links,
+    Rechts
+};
+
 using namespace std;
 
 vector<string> startCommands = {"start", "neu"};
@@ -19,70 +29,8 @@ vector<string> directions = {"links", "rechts", "vor", "zurueck", "weiter "};
 vector<string> classList = {"jaeger", "krieger", "schurke"};
 vector<string> statsCommands = {"stats", "werte", "ueberpruefen"};
 
-enum Direction
-{
-    Oben,
-    Unten,
-    Links,
-    Rechts
-};
 // Gegnerklasse
-class Enemy
-{
-public:
-    int type;
-    string name;
-    int hitpoints;
-    int strenght;
 
-    Enemy(int i) : type(i)
-    {
-
-        if (type == 1)
-        {
-            name = "Goblin";
-            hitpoints = 20;
-            strenght = 10;
-        }
-        else if (type == 2)
-        {
-            name = "Ogre";
-            hitpoints = 50;
-            strenght = 20;
-        }
-        else if (type == 3)
-        {
-            name = "Skeleton Archer";
-            hitpoints = 10;
-            strenght = 5;
-        }
-    }
-
-    void showStats()
-    {
-        cout << "Gegner: " << name << ", Gesundheit: " << hitpoints << endl;
-    }
-
-    void attack()
-    {
-        // Implementiere die Logik für den Angriff des Gegners
-    }
-    void save(ofstream &outputFile)
-    {
-        outputFile << "Enemy" << endl;
-        outputFile << name << endl;
-        outputFile << hitpoints << endl;
-        outputFile << strenght << endl;
-    }
-    void load(ifstream &inputFile)
-    {
-        string type;
-        inputFile >> type;
-        inputFile >> name;
-        inputFile >> hitpoints;
-        inputFile >> strenght;
-    }
-};
 // Spielerklasse
 class Player
 {
@@ -196,7 +144,7 @@ public:
     string name;
     bool hostile;
     int enemycount;
-    vector<pair<Direction, int>> connectedRooms;
+    vector<pair<DIRECTION, int>> connectedRooms;
     vector<Enemy> enemies;
 
     Room(string name, bool hostile) : name(name), hostile(hostile)
@@ -223,7 +171,7 @@ public:
             }
         }
     }
-    void addConnection(Direction direction, int connectedRoom)
+    void addConnection(DIRECTION direction, int connectedRoom)
     {
         connectedRooms.emplace_back(direction, connectedRoom);
     }
@@ -612,51 +560,51 @@ void renderGameStart(string action)
 void createMap()
 {
     Room start("start", false);
-    start.addConnection(Oben, 1);
+    start.addConnection(DIRECTION::Oben, 1);
     map.push_back(start);
 
     Room room1("room1", true);
-    room1.addConnection(Unten, 0);
-    room1.addConnection(Links, 2);
-    room1.addConnection(Rechts, 5);
+    room1.addConnection(DIRECTION::Unten, 0);
+    room1.addConnection(DIRECTION::Links, 2);
+    room1.addConnection(DIRECTION::Rechts, 5);
     map.push_back(room1);
 
     Room room2("room2", false);
-    room2.addConnection(Rechts, 1);
-    room2.addConnection(Oben, 3);
+    room2.addConnection(DIRECTION::Rechts, 1);
+    room2.addConnection(DIRECTION::Oben, 3);
     map.push_back(room2);
 
     Room room3("room3", true);
-    room3.addConnection(Links, 4);
-    room3.addConnection(Unten, 2);
+    room3.addConnection(DIRECTION::Links, 4);
+    room3.addConnection(DIRECTION::Unten, 2);
     map.push_back(room3);
 
     Room room4("room4", false);
-    room4.addConnection(Links, 3);
+    room4.addConnection(DIRECTION::Links, 3);
     map.push_back(room4);
 
     Room room5("room5", false);
-    room5.addConnection(Links, 1);
-    room5.addConnection(Oben, 6);
+    room5.addConnection(DIRECTION::Links, 1);
+    room5.addConnection(DIRECTION::Oben, 6);
     map.push_back(room5);
 
     Room room6("room6", true);
-    room6.addConnection(Unten, 5);
-    room6.addConnection(Oben, 6);
+    room6.addConnection(DIRECTION::Unten, 5);
+    room6.addConnection(DIRECTION::Oben, 6);
     map.push_back(room6);
 
     Room room7("room7", true);
-    room7.addConnection(Unten, 6);
-    room7.addConnection(Links, 8);
+    room7.addConnection(DIRECTION::Unten, 6);
+    room7.addConnection(DIRECTION::Links, 8);
     map.push_back(room7);
 
     Room room8("room8", false);
-    room8.addConnection(Rechts, 7);
-    room8.addConnection(Oben, 9);
+    room8.addConnection(DIRECTION::Rechts, 7);
+    room8.addConnection(DIRECTION::Oben, 9);
     map.push_back(room8);
 
     Room boss("boss", true);
-    boss.addConnection(Unten, 8);
+    boss.addConnection(DIRECTION::Unten, 8);
     map.push_back(boss);
 
     cout << "Karte erstellt" << endl;
@@ -678,10 +626,10 @@ void saveMapToFile(const string &filename)
             }
             for (const auto &enemy : room.enemies)
             {
-                file << enemy.type << endl;
-                file << enemy.name << endl;
-                file << enemy.hitpoints << endl;
-                file << enemy.strenght << endl;
+                file << enemy.getType() << endl;
+                file << enemy.getName() << endl;
+                file << enemy.getHitpoints() << endl;
+                file << enemy.getStrength() << endl;
             }
             file << endl;
         }
@@ -729,7 +677,7 @@ void loadMapFromFile(const string &filename)
                 {
                     istringstream iss(line);
                     iss >> direction >> connectedRoom;
-                    room.addConnection(static_cast<Direction>(direction), connectedRoom);
+                    room.addConnection(static_cast<DIRECTION>(direction), connectedRoom);
                     getline(file, line);
                 }
             }
@@ -749,8 +697,8 @@ void loadMapFromFile(const string &filename)
                     getline(file, line);
                     enemyDamage = stoi(line);
                     Enemy enemy(enemyType);
-                    enemy.name = enemyName;
-                    enemy.hitpoints = enemyHitpoints;
+                    enemy.setName(enemyName);
+                    enemy.setHitpoints(enemyHitpoints);
                     room.enemies.push_back(enemy);
                     getline(file, line);
                 }
